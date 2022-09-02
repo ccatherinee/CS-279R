@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+
+* {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+/* background color of task changes to grey when user hovers over it*/
+ul li:hover {
+    background-color:grey !important;
+}
+
+/* Background color of checked-off tasks in to-do list turns to grey */
+/* Crosses out checked-off tasks in to-do list */
+ul li.checked {
+    text-decoration: line-through;
+    background-color:grey !important;
+}
+
+/* stylizes the big div that contains literally everything in this app */
+.container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: #333;
+    height: 90vh;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    overflow-y: auto;
+}
+
+/* stylizes the todo title at the top */ 
+.app-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 80px;
+    opacity: 0.5;
+}
+
+/* stylizes each individual task item */
+.todo-item {
+    margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* stylizes the delete button */
+.delete-todo {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    float: right;
+}
+
+/* stylizes the little icon associated with the delete button */
+.delete-todo svg {
+    width: 30px;
+    height: 30px;
+    pointer-events: none;
+}
+
+/* stylizes the form - the place where we input our next todo item that we want to add to our todo list */
+form {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* stylizes the stuff inside the form since input is a child of form */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 3px solid #333;
+}
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <!--creates the title "todos"-->
+        <h1 class="app-title">todos</h1>
+        <!--creates the html element for our todo list-->
+        <ul id="todo-list"></ul>
+        <!--creates the text box / form we should input new tasks in-->
+        <form id="form">
+            <input id="input" type="text" aria-label="Enter a new todo item" placeholder="E.g. CS 279R Programming Assignment 0">
+        </form>
+    </div>
+
+    <script>
+        /* function which adds a new task to the to-do list ulElem */
+        function add (ulElem) {
+            /* finds the first element which has the id "#input" (the text input) */
+            const todoInput = document.querySelector("#input").value;
+            /* if no text is input, remind the user to input text */
+            if (todoInput == "") {
+                alert("Please remember to enter an item.");
+                return;
+            }
+            
+            /* creates a list item, adds "todo-item" to its class list, and sets its text to the input we previously got */
+            const liElem = document.createElement("li");
+            liElem.classList.add("todo-item")
+            liElem.innerText = todoInput
+
+            /* creates the delete button, sets its innerHTML to an icon, adds "delte-todo" to its class list */
+            const delBtn = document.createElement("button");
+            delBtn.innerHTML = '<svg> <use href="#delete-icon"> </use> </svg> '
+            delBtn.classList.add("delete-todo");
+            /* add an EventListener that listens for when we click the delete button and removes the list item parent associated to it */
+            delBtn.addEventListener("click", function(e) {
+                const parent = e.target.parentNode.remove();
+            })
+
+            /* append delte button to the task */
+            liElem.appendChild(delBtn);
+
+            /* append the task to the to-do list */
+            ulElem.appendChild(liElem); 
+
+            /* reset the text input prompt to be empty to await for the next to-do list item */
+            document.querySelector("#input").value = "";
+        }
+        
+
+        /* finds the first element which has the id "#todo-list" (out one and only todo list) */
+        const myul = document.querySelector("#todo-list");
+        
+        /* listens for the event e (clicking on our todo-list) and e.target finds which element/task the event happened to */
+        /* toggles the 'checked' class for the list item clicked */
+        myul.addEventListener('click', function(e) {
+            if (e.target.tagName == 'LI') {
+                e.target.classList.toggle('checked');
+            }
+        }, false);
+
+        /* listens for when we submit a form */
+        document.querySelector("#form").addEventListener("submit", function(e) {
+            /* stops page from reloading everytime we submit a form (default) */
+            e.preventDefault();
+            /* adds the new task when we submit a form with a new task */
+            add(myul);
+        })
+    </script>
+</body>
+
+<!-- the icon for the delete button -->
+<svg>
+    <defs>
+        <symbol id="delete-icon" viewBox="0 0 448 448"><path d="m224 0c-123.710938 0-224 100.289062-224 224s100.289062 224 224 224 224-100.289062 224-224c-.132812-123.65625-100.34375-223.867188-224-224zm124.449219 325.824219c4.15625 4.015625 5.828125 9.964843 4.363281 15.558593s-5.835938 9.964844-11.429688 11.429688-11.542968-.207031-15.558593-4.363281l-101.824219-101.824219-101.824219 101.824219c-6.277343 6.0625-16.257812 5.976562-22.429687-.195313s-6.257813-16.152344-.195313-22.429687l101.824219-101.824219-101.824219-101.824219c-4.15625-4.015625-5.828125-9.964843-4.363281-15.558593s5.835938-9.964844 11.429688-11.429688 11.542968.207031 15.558593 4.363281l101.824219 101.824219 101.824219-101.824219c6.277343-6.0625 16.257812-5.976562 22.429687.195313s6.257813 16.152344.195313 22.429687l-101.824219 101.824219zm0 0" fill="#D80027"/></symbol>
+    </defs>
+</svg>
+</html>
+
