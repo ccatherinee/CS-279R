@@ -3,9 +3,9 @@
 <head>
 <style>
 
-
+/* these three lines of code apply to the whole app (that's what the asterik means) */
+/* makes the task item width match the form width */
 * {
-    box-sizing: inherit;
     margin: 0;
     padding: 0;
 }
@@ -59,6 +59,7 @@ ul li.checked {
     background-color: transparent;
     outline: none;
     cursor: pointer;
+    /* makes sure the button is right aligned */
     float: right;
 }
 
@@ -66,6 +67,7 @@ ul li.checked {
 .delete-todo svg {
     width: 30px;
     height: 30px;
+    /* ensures the whole task is deleted when the delete button is clicked, not just the icon itself*/
     pointer-events: none;
 }
 
@@ -73,7 +75,6 @@ ul li.checked {
 form {
     width: 100%;
     display: flex;
-    justify-content: space-between;
 }
 
 /* stylizes the stuff inside the form since input is a child of form */
@@ -82,6 +83,17 @@ input[type="text"] {
     padding: 10px;
     border-radius: 4px;
     border: 3px solid #333;
+}
+
+/* specifies that task-items which are draggable (so all of them) are transform - able */
+body ul li.draggable {
+    will-change: transform;
+    margin: 10px;
+}
+
+/* an element that has something being dragged OVER IT enlarges in size a bit - stylistic choice */
+.over {
+    transform: scale(1.1, 1.1);
 }
 
 </style>
@@ -99,9 +111,100 @@ input[type="text"] {
     </div>
 
     <script>
+
+        function dragStart(e) {
+            /* "this" refers to the element that is starting to be dragged */
+            /* item being dragged is less opaque to differentiate it */
+            this.style.opacity = '0.5';
+            dragSrcEl = this;
+            /* e.dataTransfer is an object used to hold data that's being dragged durig drag-and-drop operation */
+            /* specifies that the element being dragged can be moved to a new location */
+            e.dataTransfer.effectAllowed = 'move';
+            /* specifies that this.innerHTML is the data that will be dragged */
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        };
+        
+        /* "this" refers to an element that has something being dragged OVER IT */
+        /* if something is currently being dragged over a certain element, add "over" to that element's class list */
+        function dragEnter(e) {
+            this.classList.add('over');
+        };
+            
+        /* "this" refers to the moment an element stops having another element being dragged OVER IT */
+        /* when this happens, remove "over" from the element's class list */
+        function dragLeave(e) {
+            this.classList.remove('over');
+        };
+        
+        /* e is the event in which we're passing over a valid drop area/target */
+        function dragOver(e) {
+            /* default action is that the item we're trying to drag moves back to og position -> block this default action to allow drop in new position*/
+            e.preventDefault();
+            /* specifies the drag operation effect; in this case, we want the effect of dragging to be that the item is moved to a new location*/
+            e.dataTransfer.dropEffect = 'move';
+        };
+
+        /* function that deals with when our item being dragged is dropped over to a valid location/spot */
+        function dragDrop(e) {
+            /* "this" = item being dragged */
+            /* dragSrcEl = the location that "this" is being dropped at (in our case, the list item that's switching positions with the item being dragged)
+            /* if condition checks that the item being dragged actually moved */
+            if (dragSrcEl != this) {
+
+                /* e.datatransfer only transfers innerHTML; so we need to set the "checked" condition manually */
+                thisChecked = this.classList.contains("checked");
+                dragChecked = dragSrcEl.classList.contains("checked");
+                this.classList.remove("checked");
+                dragSrcEl.classList.remove("checked");
+                
+                /* switch the innerHTML at "this" and dragSrcEl */
+                dragSrcEl.innerHTML = this.innerHTML;
+                this.innerHTML = e.dataTransfer.getData('text/html');
+                
+                /* set the "checked" condition manually (as mentioned above) */
+                if (thisChecked) {
+                    dragSrcEl.classList.add("checked");
+                }
+                if (dragChecked) {
+                    this.classList.add("checked");
+                }
+
+                /* make sure to add back the eventListener since empirical evidence suggests that switching the data between "this" and dragSrcEl destroys both eventListeners*/
+                dragSrcEl.lastChild.addEventListener("click", function(ev) {
+                    ev.target.parentNode.remove();
+                })
+                this.lastChild.addEventListener("click", function(ev) {
+                    ev.target.parentNode.remove();
+                })  
+            }
+        }
+        
+        /* the function that deals with the moment our drag operation is being ended (releasing the mouse in our case) */
+        function dragEnd(e) {
+            /* querySelectorAll finds all the elements that have ".draggable" in their class list */
+            /* for us, this is all the todo list items, because each time we make a new item, we add ".draggable" to its class list */
+            var listItems = document.querySelectorAll('.draggable');
+            /* when you drop the item you're dragging, we need to make sure all the other items you passed over no longer have "over" in their class list */
+            [].forEach.call(listItems, function(item) {
+                item.classList.remove('over');
+            });
+            /* the item being dragged is set to be less opaque; therefore when you drop it, set opaqueness back to norm */
+            this.style.opacity = '1';
+        };
+            
+        /* add all these different listeners to check when we start to drag, drop, pass over other items, etc. */
+        function addEventsDragAndDrop(el) {
+            el.addEventListener('dragstart', dragStart, false);
+            el.addEventListener('dragenter', dragEnter, false);
+            el.addEventListener('dragover', dragOver, false);
+            el.addEventListener('dragleave', dragLeave, false);
+            el.addEventListener('drop', dragDrop, false);
+            el.addEventListener('dragend', dragEnd, false);
+        };
+
         /* function which adds a new task to the to-do list ulElem */
         function add (ulElem) {
-            /* finds the first element which has the id "#input" (the text input) */
+            /* querySelector finds the first element which has the id "#input" (in this case, the text input the user entered into the form) */
             const todoInput = document.querySelector("#input").value;
             /* if no text is input, remind the user to input text */
             if (todoInput == "") {
@@ -109,11 +212,17 @@ input[type="text"] {
                 return;
             }
             
-            /* creates a list item, adds "todo-item" to its class list, and sets its text to the input we previously got */
+            /* creates a list item, adds "todo-item" to its class list, and sets its text to the input we just got */
             const liElem = document.createElement("li");
             liElem.classList.add("todo-item")
             liElem.innerText = todoInput
 
+            /* all todo list items should be draggable, so set draggable to true and add it to class list for each and every liElem */
+            var attr = document.createAttribute('draggable');
+            attr.value = 'true';
+            liElem.setAttributeNode(attr);
+            liElem.classList.add("draggable")
+        
             /* creates the delete button, sets its innerHTML to an icon, adds "delte-todo" to its class list */
             const delBtn = document.createElement("button");
             delBtn.innerHTML = '<svg> <use href="#delete-icon"> </use> </svg> '
@@ -128,6 +237,8 @@ input[type="text"] {
 
             /* append the task to the to-do list */
             ulElem.appendChild(liElem); 
+
+            addEventsDragAndDrop(liElem);
 
             /* reset the text input prompt to be empty to await for the next to-do list item */
             document.querySelector("#input").value = "";
