@@ -1,4 +1,4 @@
-How to access: This web app is located at https://ccatherinee.github.io/CS-279R/HW0/. 
+How to access: This web app is located at https://ccatherinee.github.io/CS279R/HW0/. 
 
 How to use: 
 - to add tasks to the todo list, type the task into the black rectangular box which says "E.g. CS 279R Programming Assignment 0" in light-grey lettering and hit enter
