@@ -1,0 +1,46 @@
+<!DOCTYPE html> 
+<head>
+    <!-- Title of web app -->
+    <title>Todo App</title>
+    <!-- Imports our own CSS stylesheet -->
+    <link rel="stylesheet" href="/static/stylesheets/style.css" type="text/css">
+    <!-- Imports external libraries for extra styling -->
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai|Candal|Chewy&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+</head>
+<body>
+    <div class="todo-container">
+        <!-- Title which shows up at the top in white letters to let users know what it is -->
+        <h2>To-Do List</h2>
+        <!-- Give it appropriate class to apply the styling -->
+        <div class="todo">
+            <!-- Input form where users type new tasks; when submitted, will send post request -->
+            <form action="/" method="POST" class="todo-header">
+                <input type="text" name="content">
+                <!-- Stylized submit button for form -->
+                <button type="submit"><span class="fas fa-plus"></span></button>
+            </form>
+            <!-- HTML unordered list, stylized with the appropriate class -->
+            <ul class="todo-list">
+                <!-- For loop which goes through each task that's gotten from the database -->
+                <!-- For each task, generate HTML list item (li) -->
+                <% todoTasks.forEach(details => { %>
+                <!-- Stylizes each of the list items with appropriate class -->
+                <li class="todo-list-item">
+                    <!-- Call the task whatever was gotten from database -->
+                    <div class="todo-list-item-name"><%= details.content %></div>
+                    <!-- Stylized edit button -->
+                    <a href="/edit/<%= details._id %>" class="edit">
+                        <span class="fas fa-edit"></span>
+                    </a>
+                    <!-- Stylized remove button -->
+                    <a href="/remove/<%= details._id %>" class="remove">
+                        <span class="fas fa-times"></span>
+                    </a>
+                </li>
+                <% }) %>
+            </ul>
+        </div>
+    </div>
+</body>
