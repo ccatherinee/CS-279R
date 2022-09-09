@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<head>
+    <!-- Handles the html for how the webpage should look when the edit button is hit for a particular task -->
+    <!-- A lot of overlap with todo.ejs because the only difference is that we will render/display the particular task we want to edit differently -->
+    <title>Todo App</title>
+    <!-- Import our own CSS stylesheet -->
+    <link rel="stylesheet" href="/static/stylesheets/style.css" type="text/css">
+    <!-- Imports external libraries for extra styling -->
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai|Candal|Chewy&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous"> 
+</head>
+<body>
+    <div class="todo-container">
+        <!-- Title which shows up at the top in white letters to let users know what it is -->
+        <h2>To-Do List</h2>
+        <!-- Give it appropriate class to apply the styling -->
+        <div class="todo">
+            <!-- Input form where users type new tasks; when submitted, will send post request -->
+            <form action="" method="POST" class="todo-header">
+                <input type="text" name="content">
+                <!-- Stylized submit button for form -->
+                <button type="submit"><span class="fas fa-plus"></span></button>
+            </form>
+            <!-- HTML unordered list, stylized with the appropriate class -->
+            <ul class="todo-list">
+                <!-- For loop which goes through each task that's gotten from the database -->
+                <!-- For each task, generate HTML list item (li) -->
+                <% todoTasks.forEach(details => { %>
+                    <!-- If we encounter the task we want to edit, handle differently -->
+                    <% if (details._id == idTask) { %>
+                        <!-- Render the form which lets users submit what they want the new task to be called -->
+                        <li class="todo-list-item">
+                            <form action="/edit/<%= details._id %>" method="POST">
+                                <!-- Prefill form with old name to be user-friendly -->
+                                <input type="text" value="<%= details.content %>" name="content">
+                                <!-- Submit button -->
+                                <button type="submit">Confirm</button>
+                                <!-- Cancel button -->
+                                <a href="/" class="cancel">Cancel</a>
+                            </form>
+                        </li>
+                        <!-- For all other tasks, handle the exact same as in todo.ejs -->
+                    <% } else { %>
+                        <li class="todo-list-item">
+                            <div class="todo-list-item-name"><%= details.content %></div>
+                            <a href="/edit/<%= details._id %>" class="edit"> <span class="fas fa-edit"></span>
+                            </a>
+                            <a href="/remove/<%= details._id %>" class="remove"> <span class="fas fa-times"></span>
+                            </a>
+                        </li>
+                    <% } %>
+                <% }) %>
+            </ul>
+    </div>
+    </div>
+    </body>
